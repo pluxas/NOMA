@@ -1,0 +1,19 @@
+import { Route, Routes } from "react-router-dom";
+
+import HomePage from "./pages/HomePage";
+import DocumentPage from "./pages/DocumentPage";
+
+function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+
+      <Route
+        path="/document/:id"
+        element={<DocumentPage />}
+      />
+    </Routes>
+  );
+}
+
+export default App;
