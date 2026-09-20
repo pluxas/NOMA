@@ -1,15 +1,17 @@
 import {
   ArrowLeft,
-  Cloud,
   Share2,
+  CheckCircle2,
+  WifiOff,
+  Loader2,
+  Circle,
 } from "lucide-react";
 
 import { useNavigate } from "react-router-dom";
 
-function DocumentHeader({
-  title,
-  setTitle,
-}) {
+import Participants from "./Participants";
+
+function DocumentHeader({ title, setTitle, provider, connectionStatus}) {
   const navigate = useNavigate();
 
   return (
@@ -74,43 +76,9 @@ function DocumentHeader({
 
       <div className="flex items-center gap-5">
 
-        <div
-          className="
-            flex
-            items-center
-            gap-2
-            rounded-full
-            bg-white
-            px-3
-            py-2
-            text-xs
-            font-medium
-            text-zinc-500
-          "
-        >
-          <Cloud
-            size={14}
-            className="text-[#29A19C]"
-          />
+        <ConnectionStatus status={connectionStatus} />
 
-          Saved
-        </div>
-
-        <div className="flex">
-
-          <Participant color="bg-[#A3F7BF]">
-            R
-          </Participant>
-
-          <Participant color="bg-orange-200">
-            A
-          </Participant>
-
-          <Participant color="bg-purple-200">
-            M
-          </Participant>
-
-        </div>
+        <Participants provider={provider} />
 
         <button
           className="
@@ -139,29 +107,62 @@ function DocumentHeader({
   );
 }
 
-function Participant({
-  children,
-  color,
-}) {
+function ConnectionStatus({ status }) {
+  const configs = {
+    synced: {
+      text: "Synced",
+      icon: CheckCircle2,
+      className: "text-[#29A19C] bg-[#29A19C]/10",
+    },
+
+    syncing: {
+      text: "Syncing",
+      icon: Loader2,
+      className: "text-blue-500 bg-blue-50",
+    },
+
+    connecting: {
+      text: "Connecting",
+      icon: Circle,
+      className: "text-zinc-500 bg-zinc-100",
+    },
+
+    offline: {
+      text: "Offline",
+      icon: WifiOff,
+      className: "text-orange-600 bg-orange-50",
+    },
+  };
+
+  const config =
+    configs[status] || configs.connecting;
+
+  const Icon = config.icon;
+
   return (
     <div
       className={`
-        -ml-2
         flex
-        h-9
-        w-9
         items-center
-        justify-center
+        gap-2
         rounded-full
-        border-[3px]
-        border-[#F5F7F6]
-        text-[11px]
-        font-bold
-        text-[#222831]
-        ${color}
+        px-3
+        py-2
+        text-xs
+        font-medium
+        ${config.className}
       `}
     >
-      {children}
+      <Icon
+        size={14}
+        className={
+          status === "syncing"
+            ? "animate-spin"
+            : ""
+        }
+      />
+
+      {config.text}
     </div>
   );
 }

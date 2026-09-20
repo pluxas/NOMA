@@ -1,137 +1,265 @@
-import {
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
+import { getCurrentUser } from "../lib/currentUser";
 import { useParams } from "react-router-dom";
+
+import { createCollaboration } from "../lib/collaboration";
 
 import Sidebar from "../components/Sidebar";
 import DocumentHeader from "../components/DocumentHeader";
-import EditorToolbar from "../components/EditorToolbar";
+import Editor from "../components/Editor";
 
 function DocumentPage() {
   const { id } = useParams();
 
-  const editorRef = useRef(null);
+  const currentUser = useMemo(
+    () => getCurrentUser(),
+  []);
 
-  const [title, setTitle] = useState(
-    "Untitled document"
-  );
+  const collaborationRef =
+    useRef(null);
+
+  const [title, setTitle] =
+    useState("Untitled document");
+
+  const [ydoc, setYdoc] =
+    useState(null);
+
+  const [provider, setProvider] =
+    useState(null);
+
+  const [
+    connectionStatus,
+    setConnectionStatus,
+  ] = useState("connecting");
 
   useEffect(() => {
-    const savedTitle = localStorage.getItem(
-      `document-title-${id}`
+    const {
+      ydoc,
+      provider,
+      indexeddbProvider,
+    } = createCollaboration(id);
+
+    provider.awareness.setLocalStateField(
+      "user",
+      currentUser
     );
 
-    const savedContent =
-      localStorage.getItem(
-        `document-content-${id}`
+    collaborationRef.current = {
+      ydoc,
+      provider,
+      indexeddbProvider,
+    };
+
+    setYdoc(ydoc);
+    setProvider(provider);
+
+    const yTitle =
+      ydoc.getText("title");
+
+    const updateTitleFromYjs = () => {
+      const newTitle =
+        yTitle.toString();
+
+      if (newTitle) {
+        setTitle(newTitle);
+      }
+    };
+
+    yTitle.observe(
+      updateTitleFromYjs
+    );
+
+    let reconnectTimer = null;
+    let connectionFailed = false;
+
+    const handleStatus = (event) => {
+      console.log(
+        "WebSocket status:",
+        event.status
       );
 
-    if (savedTitle) {
-      setTitle(savedTitle);
-    }
+      if (
+        event.status === "connected"
+      ) {
+        connectionFailed = false;
 
-    if (
-      savedContent &&
-      editorRef.current
-    ) {
-      editorRef.current.innerHTML =
-        savedContent;
-    }
-  }, [id]);
+        if (reconnectTimer) {
+          clearTimeout(
+            reconnectTimer
+          );
 
-  useEffect(() => {
-    localStorage.setItem(
-      `document-title-${id}`,
-      title
+          reconnectTimer = null;
+        }
+
+        setConnectionStatus(
+          "syncing"
+        );
+
+        return;
+      }
+
+      if (
+        event.status ===
+        "disconnected"
+      ) {
+        connectionFailed = true;
+
+        if (reconnectTimer) {
+          clearTimeout(
+            reconnectTimer
+          );
+
+          reconnectTimer = null;
+        }
+
+        setConnectionStatus(
+          "offline"
+        );
+
+        return;
+      }
+
+      if (
+        event.status === "connecting"
+      ) {
+        if (connectionFailed) {
+          setConnectionStatus(
+            "offline"
+          );
+
+          return;
+        }
+
+        if (!reconnectTimer) {
+          setConnectionStatus(
+            "connecting"
+          );
+
+          reconnectTimer =
+            setTimeout(() => {
+              if (
+                !provider.wsconnected
+              ) {
+                connectionFailed =
+                  true;
+
+                setConnectionStatus(
+                  "offline"
+                );
+              }
+
+              reconnectTimer = null;
+            }, 2000);
+        }
+      }
+    };
+
+    const handleSync = (
+      isSynced
+    ) => {
+      if (isSynced) {
+        setConnectionStatus(
+          "synced"
+        );
+      } else {
+        setConnectionStatus(
+          "syncing"
+        );
+      }
+    };
+
+    provider.on(
+      "status",
+      handleStatus
     );
-  }, [title, id]);
 
-  function handleEditorInput(event) {
-    localStorage.setItem(
-      `document-content-${id}`,
-      event.currentTarget.innerHTML
+    provider.on(
+      "sync",
+      handleSync
+    );
+
+    return () => {
+      if (reconnectTimer) {
+        clearTimeout(
+          reconnectTimer
+        );
+      }
+
+      yTitle.unobserve(
+        updateTitleFromYjs
+      );
+
+      provider.destroy();
+      indexeddbProvider.destroy();
+      ydoc.destroy();
+    };
+  }, [id, currentUser]);
+
+  function handleTitleChange(
+    newTitle
+  ) {
+    setTitle(newTitle);
+
+    const collaboration =
+      collaborationRef.current;
+
+    if (!collaboration) {
+      return;
+    }
+
+    const yTitle =
+      collaboration.ydoc.getText(
+        "title"
+      );
+
+    collaboration.ydoc.transact(
+      () => {
+        yTitle.delete(
+          0,
+          yTitle.length
+        );
+
+        if (newTitle) {
+          yTitle.insert(
+            0,
+            newTitle
+          );
+        }
+      }
     );
   }
 
   return (
     <div className="min-h-screen bg-[#F5F7F6]">
-
       <Sidebar />
 
       <main className="ml-[76px] min-h-screen">
-
         <DocumentHeader
           title={title}
-          setTitle={setTitle}
+          setTitle={
+            handleTitleChange
+          }
+          provider={provider}
+          connectionStatus={
+            connectionStatus
+          }
         />
 
         <div className="px-10 pb-24 pt-10">
-
           <div className="mx-auto max-w-[920px]">
-
-            <EditorToolbar />
-
-            <div
-              className="
-                min-h-[800px]
-                rounded-[26px]
-                border
-                border-zinc-200
-                bg-white
-                px-20
-                py-16
-                shadow-[0_15px_50px_rgba(34,40,49,0.05)]
-              "
-            >
-
-              <div
-                ref={editorRef}
-                contentEditable
-                suppressContentEditableWarning
-                onInput={handleEditorInput}
-                className="
-                  min-h-[650px]
-                  outline-none
-
-                  text-[16px]
-                  leading-8
-                  text-[#393E46]
-
-                  [&_h1]:mb-6
-                  [&_h1]:text-4xl
-                  [&_h1]:font-bold
-                  [&_h1]:leading-tight
-                  [&_h1]:text-[#222831]
-
-                  [&_h2]:mb-4
-                  [&_h2]:mt-8
-                  [&_h2]:text-2xl
-                  [&_h2]:font-semibold
-                  [&_h2]:text-[#222831]
-
-                  [&_p]:my-4
-
-                  [&_ul]:my-4
-                  [&_ul]:list-disc
-                  [&_ul]:pl-7
-
-                  [&_ol]:my-4
-                  [&_ol]:list-decimal
-                  [&_ol]:pl-7
-                "
+            {ydoc && provider && (
+              <Editor
+                ydoc={ydoc}
+                provider={
+                  provider
+                }
+                user={currentUser}
               />
-
-            </div>
-
+            )}
           </div>
-
         </div>
-
       </main>
-
     </div>
   );
 }

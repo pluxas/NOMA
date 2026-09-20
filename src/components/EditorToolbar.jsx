@@ -1,22 +1,17 @@
 import {
   Bold,
+  Italic,
   Heading1,
   Heading2,
-  Italic,
   List,
   ListOrdered,
-  Redo2,
   Undo2,
+  Redo2,
 } from "lucide-react";
 
-function EditorToolbar() {
-
-  function execute(command, value = null) {
-    document.execCommand(
-      command,
-      false,
-      value
-    );
+function EditorToolbar({ editor }) {
+  if (!editor) {
+    return null;
   }
 
   return (
@@ -39,18 +34,19 @@ function EditorToolbar() {
         shadow-[0_10px_35px_rgba(34,40,49,0.10)]
       "
     >
-
       <ToolbarButton
+        active={editor.isActive("bold")}
         onClick={() =>
-          execute("bold")
+          editor.chain().focus().toggleBold().run()
         }
       >
         <Bold size={18} />
       </ToolbarButton>
 
       <ToolbarButton
+        active={editor.isActive("italic")}
         onClick={() =>
-          execute("italic")
+          editor.chain().focus().toggleItalic().run()
         }
       >
         <Italic size={18} />
@@ -59,22 +55,30 @@ function EditorToolbar() {
       <Divider />
 
       <ToolbarButton
+        active={editor.isActive("heading", {
+          level: 1,
+        })}
         onClick={() =>
-          execute(
-            "formatBlock",
-            "h1"
-          )
+          editor
+            .chain()
+            .focus()
+            .toggleHeading({ level: 1 })
+            .run()
         }
       >
         <Heading1 size={18} />
       </ToolbarButton>
 
       <ToolbarButton
+        active={editor.isActive("heading", {
+          level: 2,
+        })}
         onClick={() =>
-          execute(
-            "formatBlock",
-            "h2"
-          )
+          editor
+            .chain()
+            .focus()
+            .toggleHeading({ level: 2 })
+            .run()
         }
       >
         <Heading2 size={18} />
@@ -83,20 +87,26 @@ function EditorToolbar() {
       <Divider />
 
       <ToolbarButton
+        active={editor.isActive("bulletList")}
         onClick={() =>
-          execute(
-            "insertUnorderedList"
-          )
+          editor
+            .chain()
+            .focus()
+            .toggleBulletList()
+            .run()
         }
       >
         <List size={18} />
       </ToolbarButton>
 
       <ToolbarButton
+        active={editor.isActive("orderedList")}
         onClick={() =>
-          execute(
-            "insertOrderedList"
-          )
+          editor
+            .chain()
+            .focus()
+            .toggleOrderedList()
+            .run()
         }
       >
         <ListOrdered size={18} />
@@ -106,7 +116,7 @@ function EditorToolbar() {
 
       <ToolbarButton
         onClick={() =>
-          execute("undo")
+          editor.chain().focus().undo().run()
         }
       >
         <Undo2 size={18} />
@@ -114,38 +124,39 @@ function EditorToolbar() {
 
       <ToolbarButton
         onClick={() =>
-          execute("redo")
+          editor.chain().focus().redo().run()
         }
       >
         <Redo2 size={18} />
       </ToolbarButton>
-
     </div>
   );
 }
 
 function ToolbarButton({
   children,
+  active = false,
   onClick,
 }) {
   return (
     <button
-      onMouseDown={(event) => {
-        event.preventDefault();
-        onClick();
-      }}
-      className="
+      type="button"
+      onClick={onClick}
+      className={`
         flex
         h-9
         w-9
         items-center
         justify-center
         rounded-lg
-        text-zinc-500
         transition
-        hover:bg-[#29A19C]/10
-        hover:text-[#29A19C]
-      "
+
+        ${
+          active
+            ? "bg-[#29A19C]/10 text-[#29A19C]"
+            : "text-zinc-500 hover:bg-zinc-100 hover:text-[#222831]"
+        }
+      `}
     >
       {children}
     </button>
