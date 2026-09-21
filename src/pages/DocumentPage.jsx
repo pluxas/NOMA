@@ -234,7 +234,7 @@ function DocumentPage() {
     <div className="min-h-screen bg-[#F5F7F6]">
       <Sidebar />
 
-      <main className="ml-[76px] min-h-screen">
+      <main className="ml-[64px] min-h-screen bg-[#F4F6FA]">
         <DocumentHeader
           title={title}
           setTitle={

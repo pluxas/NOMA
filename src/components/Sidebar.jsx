@@ -1,17 +1,30 @@
 import {
   FileText,
-  House,
+  Home,
   Settings,
   Users,
+  HelpCircle,
+  Clock3,
+  BarChart3,
+  Sparkles,
 } from "lucide-react";
 
-import { useLocation, useNavigate } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 
 function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const isHome = location.pathname === "/";
+  const isHome =
+    location.pathname === "/";
+
+  const isDocument =
+    location.pathname.startsWith(
+      "/document/"
+    );
 
   return (
     <aside
@@ -20,26 +33,37 @@ function Sidebar() {
         left-0
         top-0
         z-50
+
         flex
         h-screen
-        w-[76px]
+        w-[64px]
         flex-col
         items-center
-        bg-[#222831]
+
+        border-r
+        border-[#EAECF0]
+
+        bg-white
+
         py-5
       "
     >
+      {/* LOGO */}
+
       <button
         onClick={() => navigate("/")}
         className="
           flex
-          h-11
-          w-11
+          h-10
+          w-10
           items-center
           justify-center
-          rounded-2xl
-          bg-[#29A19C]
-          text-lg
+
+          rounded-xl
+
+          bg-[#6377F1]
+
+          text-sm
           font-bold
           text-white
         "
@@ -47,50 +71,50 @@ function Sidebar() {
         N
       </button>
 
-      <nav className="mt-10 flex flex-col gap-2">
+      {/* MAIN NAV */}
+
+      <nav className="mt-8 flex flex-col gap-2">
 
         <SidebarButton
           active={isHome}
-          onClick={() => navigate("/")}
+          onClick={() =>
+            navigate("/")
+          }
         >
-          <House size={20} />
+          <Home size={19} />
         </SidebarButton>
 
         <SidebarButton
-          active={!isHome}
-          onClick={() => navigate("/document/1")}
+          active={isDocument}
         >
-          <FileText size={20} />
+          <FileText size={19} />
         </SidebarButton>
 
         <SidebarButton>
-          <Users size={20} />
+          <Clock3 size={19} />
+        </SidebarButton>
+
+        <SidebarButton>
+          <BarChart3 size={19} />
+        </SidebarButton>
+
+        <SidebarButton>
+          <Sparkles size={19} />
         </SidebarButton>
 
       </nav>
 
-      <div className="mt-auto flex flex-col items-center gap-4">
+      {/* BOTTOM */}
+
+      <div className="mt-auto flex flex-col gap-2">
 
         <SidebarButton>
-          <Settings size={20} />
+          <HelpCircle size={19} />
         </SidebarButton>
 
-        <div
-          className="
-            flex
-            h-10
-            w-10
-            items-center
-            justify-center
-            rounded-full
-            bg-[#A3F7BF]
-            text-sm
-            font-bold
-            text-[#222831]
-          "
-        >
-          R
-        </div>
+        <SidebarButton>
+          <Settings size={19} />
+        </SidebarButton>
 
       </div>
     </aside>
@@ -107,17 +131,28 @@ function SidebarButton({
       onClick={onClick}
       className={`
         flex
-        h-11
-        w-11
+        h-10
+        w-10
         items-center
         justify-center
+
         rounded-xl
+
         transition-all
+        duration-200
 
         ${
           active
-            ? "bg-[#29A19C] text-white"
-            : "text-zinc-400 hover:bg-[#393E46] hover:text-white"
+            ? `
+              bg-[#EEF1FF]
+              text-[#6377F1]
+            `
+            : `
+              text-[#969BA5]
+
+              hover:bg-[#F5F6F8]
+              hover:text-[#202124]
+            `
         }
       `}
     >

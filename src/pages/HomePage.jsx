@@ -8,7 +8,10 @@ import {
   Share2,
   StickyNote,
   SlidersHorizontal,
+  FileText
 } from "lucide-react";
+
+import { useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 
@@ -63,6 +66,8 @@ const documents = [
 ];
 
 function HomePage() {
+  const [viewMode, setViewMode] = useState("grid");
+
   const navigate = useNavigate();
 
   function createDocument() {
@@ -73,7 +78,6 @@ function HomePage() {
 
   return (
     <div className="min-h-screen bg-[#F4F6FA]">
-
       <AppRail />
 
       <DocumentsSidebar />
@@ -85,7 +89,6 @@ function HomePage() {
         "
       >
         <div className="px-5 py-5">
-
           {/* TOPBAR */}
 
           <header
@@ -96,7 +99,6 @@ function HomePage() {
               justify-between
             "
           >
-
             <div
               className="
                 flex
@@ -111,10 +113,7 @@ function HomePage() {
                 px-3
               "
             >
-              <Search
-                size={17}
-                className="text-[#9EA2AA]"
-              />
+              <Search size={17} className="text-[#9EA2AA]" />
 
               <input
                 placeholder="Search..."
@@ -144,7 +143,6 @@ function HomePage() {
             </div>
 
             <div className="flex items-center gap-3">
-
               <button
                 className="
                   relative
@@ -191,9 +189,7 @@ function HomePage() {
               >
                 R
               </div>
-
             </div>
-
           </header>
 
           {/* QUICK ACTIONS */}
@@ -255,7 +251,6 @@ function HomePage() {
               p-5
             "
           >
-
             <div
               className="
                 mb-5
@@ -264,9 +259,7 @@ function HomePage() {
                 justify-between
               "
             >
-
               <div className="flex items-center gap-3">
-
                 <h2
                   className="
                     text-lg
@@ -290,46 +283,57 @@ function HomePage() {
                 >
                   {documents.length}
                 </span>
-
               </div>
 
               <div className="flex items-center gap-2">
-
                 <div
                   className="
-                    flex
-                    rounded-xl
-                    border
-                    border-[#E7E9EE]
-                    bg-white
-                    p-1
-                  "
+    flex
+    rounded-xl
+    border
+    border-[#E7E9EE]
+    bg-white
+    p-1
+  "
                 >
                   <button
-                    className="
-                      flex
-                      h-8
-                      w-8
-                      items-center
-                      justify-center
-                      rounded-lg
-                      bg-[#F1F3F7]
-                      text-[#454950]
-                    "
+                    onClick={() => setViewMode("grid")}
+                    className={`
+      flex
+      h-8
+      w-8
+      items-center
+      justify-center
+      rounded-lg
+      transition
+
+      ${
+        viewMode === "grid"
+          ? "bg-[#EEF1FF] text-[#6377F1]"
+          : "text-[#A0A4AC] hover:bg-[#F5F6F8]"
+      }
+    `}
                   >
                     <LayoutGrid size={16} />
                   </button>
 
                   <button
-                    className="
-                      flex
-                      h-8
-                      w-8
-                      items-center
-                      justify-center
-                      rounded-lg
-                      text-[#A0A4AC]
-                    "
+                    onClick={() => setViewMode("list")}
+                    className={`
+      flex
+      h-8
+      w-8
+      items-center
+      justify-center
+      rounded-lg
+      transition
+
+      ${
+        viewMode === "list"
+          ? "bg-[#EEF1FF] text-[#6377F1]"
+          : "text-[#A0A4AC] hover:bg-[#F5F6F8]"
+      }
+    `}
                   >
                     <List size={16} />
                   </button>
@@ -353,37 +357,138 @@ function HomePage() {
                   <SlidersHorizontal size={15} />
                   Filter
                 </button>
-
               </div>
             </div>
 
-            <div
-              className="
-                grid
-                grid-cols-1
-                gap-4
-                md:grid-cols-2
-                xl:grid-cols-3
-                2xl:grid-cols-4
-              "
-            >
-              {documents.map(
-                (document) => (
-                  <DocumentCard
-                    key={document.id}
-                    document={document}
-                    onClick={() =>
-                      navigate(
-                        `/document/${document.id}`
-                      )
-                    }
-                  />
-                )
-              )}
-            </div>
+            {viewMode === "grid" ? (
+  <div
+    className="
+      grid
+      grid-cols-1
+      gap-4
+      md:grid-cols-2
+      xl:grid-cols-3
+      2xl:grid-cols-4
+    "
+  >
+    {documents.map((document) => (
+      <DocumentCard
+        key={document.id}
+        document={document}
+        onClick={() =>
+          navigate(`/document/${document.id}`)
+        }
+      />
+    ))}
+  </div>
+) : (
+  <div className="space-y-2">
+    {documents.map((document) => (
+      <button
+        key={document.id}
+        onClick={() =>
+          navigate(`/document/${document.id}`)
+        }
+        className="
+          flex
+          w-full
+          items-center
+          gap-4
+          rounded-2xl
+          border
+          border-[#ECEEF2]
+          bg-white
+          px-4
+          py-3
+          text-left
+          transition
 
+          hover:border-[#6377F1]/30
+          hover:shadow-sm
+        "
+      >
+        <div
+          className="
+            flex
+            h-11
+            w-11
+            shrink-0
+            items-center
+            justify-center
+            rounded-xl
+            bg-[#EEF1FF]
+            text-[#6377F1]
+          "
+        >
+          <FileText size={18} />
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <h3
+            className="
+              truncate
+              text-sm
+              font-semibold
+              text-[#25272B]
+            "
+          >
+            {document.title}
+          </h3>
+
+          <p
+            className="
+              mt-1
+              text-xs
+              text-[#9A9EA6]
+            "
+          >
+            {document.category}
+          </p>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <div className="flex -space-x-2">
+            {document.users?.map(
+              (user, index) => (
+                <div
+                  key={index}
+                  className="
+                    flex
+                    h-7
+                    w-7
+                    items-center
+                    justify-center
+                    rounded-full
+                    border-2
+                    border-white
+                    bg-[#EAF8E5]
+                    text-[9px]
+                    font-semibold
+                    text-[#4A6B45]
+                  "
+                >
+                  {user}
+                </div>
+              )
+            )}
+          </div>
+
+          <span
+            className="
+              w-[90px]
+              text-right
+              text-xs
+              text-[#9A9EA6]
+            "
+          >
+            {document.updatedAt}
+          </span>
+        </div>
+      </button>
+    ))}
+  </div>
+)}
           </section>
-
         </div>
       </main>
     </div>
