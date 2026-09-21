@@ -74,10 +74,6 @@ function DocumentPage() {
     let connectionFailed = false;
 
     const handleStatus = (event) => {
-      console.log(
-        "WebSocket status:",
-        event.status
-      );
 
       if (
         event.status === "connected"

@@ -20,14 +20,6 @@ export function createCollaboration(documentId) {
     ydoc
   );
 
-  indexeddbProvider.on("synced", () => {
-    console.log("IndexedDB loaded");
-  });
-
-  provider.on("status", (event) => {
-    console.log("WebSocket:", event.status);
-  });
-
   return {
     ydoc,
     provider,

@@ -2,7 +2,6 @@ import {
   FileText,
   Home,
   Settings,
-  Users,
   HelpCircle,
   Clock3,
   BarChart3,
