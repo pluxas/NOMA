@@ -287,26 +287,10 @@ function HomePage() {
 
               <div className="flex items-center gap-2">
                 <div
-                  className="
-    flex
-    rounded-xl
-    border
-    border-[#E7E9EE]
-    bg-white
-    p-1
-  "
-                >
+                  className="flex rounded-xl border border-[#E7E9EE] bg-white p-1">
                   <button
                     onClick={() => setViewMode("grid")}
-                    className={`
-      flex
-      h-8
-      w-8
-      items-center
-      justify-center
-      rounded-lg
-      transition
-
+                    className={`flex h-8 w-8 items-center justify-center rounded-lg transition
       ${
         viewMode === "grid"
           ? "bg-[#EEF1FF] text-[#6377F1]"
@@ -332,8 +316,8 @@ function HomePage() {
         viewMode === "list"
           ? "bg-[#EEF1FF] text-[#6377F1]"
           : "text-[#A0A4AC] hover:bg-[#F5F6F8]"
-      }
-    `}
+              }
+                  `}
                   >
                     <List size={16} />
                   </button>

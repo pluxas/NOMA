@@ -1,5 +1,20 @@
 @import "tailwindcss";
 
+body {
+  margin: 0;
+  background: #f5f7f6;
+}
+
+button,
+input {
+  font-family: inherit;
+}
+
+[contenteditable="true"]:empty::before {
+  content: "Start writing...";
+  color: #a1a1aa;
+}
+
 .tiptap .collaboration-carets__caret {
   border-left: 2px solid;
   border-right: 2px solid;
@@ -28,19 +43,4 @@
 
   user-select: none;
   white-space: nowrap;
-}
-
-body {
-  margin: 0;
-  background: #f5f7f6;
-}
-
-button,
-input {
-  font-family: inherit;
-}
-
-[contenteditable="true"]:empty::before {
-  content: "Start writing...";
-  color: #a1a1aa;
 }
