@@ -71,8 +71,8 @@ NOMA — это веб-редактор для совместной работы
 Клонируйте репозиторий:
 
 ```bash
-git clone YOUR_REPOSITORY_URL
-cd noma-collaborative-editor
+git clone https://github.com/pluxas/NOMA
+cd NOMA
 ```
 
 Установите зависимости:
@@ -99,7 +99,7 @@ yarn ws
 WebSocket-сервер запускается по адресу:
 
 ```text
-ws://localhost:1234
+http://localhost:1234
 ```
 
 ### Запуск фронтенда
